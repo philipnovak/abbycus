@@ -1,0 +1,48 @@
+<html>
+    <head>
+        <title>Abbycus Board</title>
+
+        <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
+        <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+
+        <script src="algebra-0.2.6.min.js"></script>
+
+        <script src="build/main.js" defer></script>
+        <script src="build/components.js" defer></script>
+
+        <style>
+            #abbycus-root {
+                font-family: monospace;
+                display: flex;
+            }
+            .number-block,
+            .operator-block {
+                display: inline-flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+            .number-block {
+                border: 1px solid gray;
+                padding: 1em;
+                width: 9em;
+                height: 9em;
+            }
+            .number-block .digit {
+                font-family: monospace;
+                font-size: 3em;
+                max-width: 3em;
+                text-align: center;
+                border: none;
+            }
+            .operator-block {
+                font-size: 4em;
+                padding: 0.5em;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="abbycus-root"></div>
+    </body>
+</html>

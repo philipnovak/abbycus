@@ -1,0 +1,18 @@
+{
+    "dependencies": {},
+    "name": "abbycus",
+    "version": "1.0.0",
+    "main": "board.html",
+    "scripts": {
+        "dev": "babel --watch src --out-dir build --presets @babel/preset-react"
+    },
+    "keywords": [],
+    "author": "philipnovak",
+    "license": "ISC",
+    "description": "",
+    "devDependencies": {
+        "@babel/cli": "^7.21.0",
+        "@babel/core": "^7.21.3",
+        "@babel/preset-react": "^7.18.6"
+    }
+}
