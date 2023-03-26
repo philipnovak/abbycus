@@ -85,7 +85,7 @@ function solve() {
     try {
         const solution = algebra.parse(equationCopy).solveFor('x')
 
-        equation[solveForIndex].value = solution.toString()
+        equation[solveForIndex].value = solution.valueOf().toString()
     } catch (error) {
         console.error(error.message)
     }
