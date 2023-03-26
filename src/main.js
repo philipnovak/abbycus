@@ -70,7 +70,7 @@ function replaceOperator(input) {
 }
 
 function formatEquation(equation) {
-    return equation.map((symbol) => (isNegativeNumber(symbol) ? `(${symbol.value})` : symbol.value)).join(' ')
+    return equation.map((symbol) => symbol.value).join(' ')
 }
 
 function solve() {
@@ -83,9 +83,12 @@ function solve() {
     console.log('Solving', equationCopy)
 
     try {
-        const solution = algebra.parse(equationCopy).solveFor('x')
+        let solution = coffeequate(equationCopy).solve('x').toString()
+        console.log('x =', solution)
 
-        equation[solveForIndex].value = solution.toString()
+        solution = String(eval(solution))
+
+        equation[solveForIndex].value = solution
     } catch (error) {
         console.error(error.message)
     }
@@ -126,4 +129,4 @@ const isNegativeNumber = (symbol) => symbol.type === 'number' && symbol.value.st
 const hasEqualSign = () => equation.findIndex((symbol) => symbol.value === '=') >= 0
 const deepCopy = (array) => JSON.parse(JSON.stringify(array))
 const isComplete = (number) => !number.endsWith('.') && number !== '-'
-const formatDecimal = (number) => number.replace(/(?<!\d)[.]/, '0.').replace('+', '') // replace decimal point that doesn't start with anything to '0.'
+const formatDecimal = (number) => number.replace(/(?<!\d)[.]/, '0.') // replace decimal point that doesn't start with anything to '0.'

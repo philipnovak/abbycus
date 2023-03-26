@@ -58,7 +58,7 @@ function replaceOperator(input) {
   equation.at(-1).value = input;
 }
 function formatEquation(equation) {
-  return equation.map(symbol => isNegativeNumber(symbol) ? `(${symbol.value})` : symbol.value).join(' ');
+  return equation.map(symbol => symbol.value).join(' ');
 }
 function solve() {
   solveForIndex ??= equation.length - 1;
@@ -67,8 +67,10 @@ function solve() {
   equationCopy = formatEquation(equationCopy);
   console.log('Solving', equationCopy);
   try {
-    const solution = algebra.parse(equationCopy).solveFor('x');
-    equation[solveForIndex].value = solution.valueOf();
+    let solution = coffeequate(equationCopy).solve('x').toString();
+    console.log('x =', solution);
+    solution = String(eval(solution));
+    equation[solveForIndex].value = solution;
   } catch (error) {
     console.error(error.message);
   }
@@ -99,9 +101,8 @@ function render() {
 const isNumber = input => input.match(/[0-9.]/);
 const isOperator = input => input.match(/[*+/-]/);
 const isEqualSign = input => input === '=' || input === 'Enter';
-const isNegativeNumber = symbol => symbol.type === 'number' && symbol.value.toString().includes('-');
+const isNegativeNumber = symbol => symbol.type === 'number' && symbol.value.startsWith('-');
 const hasEqualSign = () => equation.findIndex(symbol => symbol.value === '=') >= 0;
-const lastInputValue = () => equation.at(-1).value.toString().slice(-1);
 const deepCopy = array => JSON.parse(JSON.stringify(array));
-const isComplete = number => typeof number === 'number' || !number.endsWith('.') && number !== '-';
-const formatDecimal = number => number.replace(/(?<!\d)[.]/, '0.').replace('+', ''); // replace decimal point that doesn't start with anything to '0.'
+const isComplete = number => !number.endsWith('.') && number !== '-';
+const formatDecimal = number => number.replace(/(?<!\d)[.]/, '0.'); // replace decimal point that doesn't start with anything to '0.'
