@@ -5,7 +5,7 @@ document.addEventListener('keypress', event => {
   if (event.target instanceof HTMLInputElement) return;
   const input = event.key;
   if (equation.length) {
-    if (isNumber(input)) {
+    if (isNumeric(input)) {
       handleNumber(input);
     } else if (isOperator(input)) {
       handleOperator(input);
@@ -15,7 +15,7 @@ document.addEventListener('keypress', event => {
       solve();
     }
   } else {
-    if (isNumber(input) || input === '-') {
+    if (isNumeric(input) || input === '-') {
       createNumber(input);
     }
   }
@@ -57,21 +57,62 @@ function createOperator(input) {
 function replaceOperator(input) {
   equation.at(-1).value = input;
 }
-function formatEquation(equation) {
-  return equation.map(symbol => isNegativeNumber(symbol) ? `(${symbol.value})` : symbol.value).join(' ');
+function format(expression) {
+  return expression.flatMap(symbol => symbol.value ?? symbol.symbols);
+}
+function nest(expression, operators) {
+  for (let i = 1; i < expression.length; i += 2) {
+    if (operators.find(operator => operator === expression[i].value)) {
+      const symbols = expression.slice(i - 1, i + 2);
+      const hasX = !!symbols.find(symbol => symbol.value === 'x');
+      expression.splice(i - 1, 3, {
+        type: 'expression',
+        symbols,
+        hasX
+      });
+      nest(expression, operators);
+      break;
+    }
+  }
+  return expression;
+}
+function invert(nestedExpression) {}
+let i = 0;
+function calculate(nestedExpression) {
+  console.log('nested expression ' + i++);
+  console.log(format(nestedExpression));
+  const leftSide = nestedExpression[0];
+  const operator = nestedExpression[1];
+  const rightSide = nestedExpression[2];
+  if (leftSide.type === 'expression') {
+    leftSide.value = calculate(leftSide.symbols);
+  }
+  if (rightSide.type === 'expression') {
+    rightSide.value = calculate(rightSide.symbols);
+  }
+  switch (operator.value) {
+    case '*':
+      return new Decimal(leftSide.value).times(new Decimal(rightSide.value)).toString();
+    case '/':
+      return new Decimal(leftSide.value).dividedBy(new Decimal(rightSide.value)).toString();
+    case '+':
+      return new Decimal(leftSide.value).plus(new Decimal(rightSide.value)).toString();
+    case '-':
+      return new Decimal(leftSide.value).minus(new Decimal(rightSide.value)).toString();
+    case '=':
+      return new Decimal(leftSide.value);
+  }
 }
 function solve() {
   solveForIndex ??= equation.length - 1;
   let equationCopy = deepCopy(equation);
-  equationCopy[solveForIndex].value = 'x';
-  equationCopy = formatEquation(equationCopy);
-  console.log('Solving', equationCopy);
-  try {
-    const solution = algebra.parse(equationCopy).solveFor('x');
-    equation[solveForIndex].value = solution.valueOf().toString();
-  } catch (error) {
-    console.error(error.message);
-  }
+  console.log('Solving', format(equationCopy));
+  const nestedExpression = nest(nest(equationCopy, ['*', '/']), ['+', '-']);
+  console.log('Nested', nestedExpression);
+  console.log('Formatted', format(nestedExpression));
+  const solution = calculate(nestedExpression);
+  console.log(solution);
+  equation[solveForIndex].value = solution.toString();
 }
 function setSymbolValue(value, index) {
   equation[index].value = formatDecimal(value);
@@ -96,7 +137,7 @@ function render() {
 }
 
 // helper functions
-const isNumber = input => input.match(/[0-9.]/);
+const isNumeric = input => input.match(/[0-9.]/);
 const isOperator = input => input.match(/[*+/-]/);
 const isEqualSign = input => input === '=' || input === 'Enter';
 const isNegativeNumber = symbol => symbol.type === 'number' && symbol.value.startsWith('-');
